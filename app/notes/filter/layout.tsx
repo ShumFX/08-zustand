@@ -13,3 +13,4 @@ export default function NotesLayout({ children, sidebar }: Props) {
     </section>
   );
 };
+
