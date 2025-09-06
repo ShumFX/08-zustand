@@ -1,70 +1,70 @@
 "use client";
 
-import css from "@/app/notes/filter/[...slug]/NotesPage.module.css"
-
-
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import NoteList from "@/components/NoteList/NoteList";
-import { fetchNotes } from "@/lib/api";
 import { useState } from "react";
-import Pagination from '@/components/Pagination/Pagination';
-import SearchBox from '@/components/SearchBox/SearchBox';
-// import Modal from "@/components/Modal/Modal";
-// import NoteForm from "@/components/NoteForm/NoteForm";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import { NoteTag } from "@/types/note";
-
+import SearchBox from "@/components/SearchBox/SearchBox";
+import Pagination from "@/components/Pagination/Pagination";
+import NoteList from "@/components/NoteList/NoteList";
+import Loader from "@/app/loading";
+import { fetchNotes, FetchNotesResponse } from "@/lib/api";
+import css from "./Notes.page.module.css";
 import Link from "next/link";
 
-type NotesClientProps = {
-  tag?: NoteTag;
-};
-
-export default function NotesClient({tag}: NotesClientProps) {
-
-  const perPage = 12;
-
-  const [search, setSearch] = useState(""); // стан для пошуку
-  const [page, setPage] = useState(1); // стан для пагінації
-  // const [isModalOpen, setIsModalOpen] = useState(false); // стан модального вікна
-  const [debouncedSearch] = useDebounce(search, 1000); // стан затримки пошуку
-
-  const { data, isSuccess} = useQuery({ // стан запиту
-    queryKey: ["notes", page, debouncedSearch, tag],
-    queryFn: () => fetchNotes(page, debouncedSearch, perPage, tag),
-    placeholderData: keepPreviousData, // без блимання
-    refetchOnMount: false,
-  })
-
-const handleSearchChange = (value: string) => {
-  setSearch(value);
-  setPage(1);
+interface NotesClientProps {
+  tag?: string;
 }
-  //   const openModal = () => {
-  //   setIsModalOpen(true);
-  // };
-  // const closeModal = () => {
-  //   setIsModalOpen(false);
-  // };
+
+export default function NotesClient({ tag }: NotesClientProps) {
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch] = useDebounce(search, 500);
+
+  const { data, isFetching, isError, error } = useQuery<FetchNotesResponse>({
+    queryKey: ["notes", debouncedSearch, page, tag],
+    queryFn: () => fetchNotes(debouncedSearch, page, 9, tag),
+    placeholderData: (prev) => prev,
+  });
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handlePageChange = (selectedPage: number) => {
+    setPage(selectedPage);
+  };
 
   return (
-    <>
     <div className={css.app}>
-	<header className={css.toolbar}>
-          {/* Компонент SearchBox */
-            <SearchBox value={search} onChange={handleSearchChange} />}
-          
-          {/* Пагінація */
-            isSuccess && data?.totalPages > 1 && <Pagination totalPages={data.totalPages} currentPage={page} onPageChange={setPage} />}
-          
-          {/* Кнопка створення нотатки */
-            <Link href="/notes/action/create" className={css.button} role="button">Create note +</Link>}
-  </header> 
+      <header className={css.toolbar}>
+        <SearchBox value={search} onChange={handleSearchChange} />
+        {data && data.totalPages > 1 && (
+          <Pagination
+            pageCount={data.totalPages}
+            currentPage={page}
+            onPageChange={handlePageChange}
+          />
+        )}
+        <Link className={css.button} href="/notes/action/create">
+          Create note +
+        </Link>
+      </header>
 
-        {data && data?.notes.length > 0 && <NoteList notes={data.notes} />}
+      <h2 className={css.title}>
+        {tag ? `Notes tagged: ${tag}` : "All notes"}
+      </h2>
 
-        {/* {isModalOpen && (<Modal onClose={closeModal}> <NoteForm onCancel={closeModal} /></Modal>)} */}
+      {isFetching && <Loader />}
+      {isError && <p>Error: {(error as Error).message}</p>}
+      {data && data.notes.length === 0 && !isFetching && (
+        <p className={css.notfound}>
+          {debouncedSearch
+            ? `No notes found for "${debouncedSearch}"`
+            : "No notes found"}
+        </p>
+      )}
+      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
     </div>
-    </>
-  )
+  );
 }

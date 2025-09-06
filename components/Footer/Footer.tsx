@@ -1,16 +1,18 @@
-import css from "./Footer.module.css"
+import css from "./Footer.module.css";
 
 export default function Footer() {
-return (<footer className={css.footer}>
-  <div className={css.content}>
-    <p>© {new Date().getFullYear()} NoteHub. All rights reserved.</p>
-    <div className={css.wrap}>
-      <p>Developer: Stanislav Bolokhov</p>
-      <p>
-        Contact us:
-        <a href="mailto:alfadnepr@gmail.com"> alfadnepr@gmail.com</a>
-      </p>
-    </div>
-  </div>
-</footer>)
+  return (
+    <footer className={css.footer}>
+      <div className={css.content}>
+        <p>© {new Date().getFullYear()} NoteHub. All rights reserved.</p>
+        <div className={css.wrap}>
+          <p>Developer: Stanislav Bolokhov</p>
+          <p>
+            Contact us:
+            <a href="mailto:alfadnepr@gmail.com"> alfadnepr@gmail.com</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
 }

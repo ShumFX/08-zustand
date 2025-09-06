@@ -1,34 +1,34 @@
 import type { Metadata } from "next";
-import { Roboto } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
-
-const roboto = Roboto({
-  subsets: ['latin'], 
-  weight: ['400', '700'],
-  variable: '--font-roboto', 
-  display: 'swap', 
-});
+import { Roboto } from "next/font/google";
 
 export const metadata: Metadata = {
   title: "Note Hub",
-  description: "Application for creating and searching notes",
-      openGraph: {
-      title: "Note Hub",
-      description: "Application for creating and searching notes",
-      url: "https://08-zustand-ten-mu.vercel.app/",
-      images: [
-        {
-          url: "https://ac.goit.global/fullstack/react/og-meta.jpg",
-          width: 1200,
-          height: 630,
-          alt: "Note Hub Foto",
-        }
-      ],
-    },
+  description: "App for making and updating notes",
+  openGraph: {
+    title: "Note Hub",
+    description: "App for making and updating notes",
+    url: "https://08-zustand-ten-ochre.vercel.app/",
+    images: [
+      {
+        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Note Hub Logo",
+      },
+    ],
+  },
 };
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -41,10 +41,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={roboto.variable}>
         <TanStackProvider>
-        <Header/>
-        <main>{children}{modal}</main>
+          <Header />
+          <main>
+            {children}
+            {modal}
+          </main>
           <Footer />
-          </TanStackProvider>
+          <div id="modal-root"></div>
+        </TanStackProvider>
       </body>
     </html>
   );
